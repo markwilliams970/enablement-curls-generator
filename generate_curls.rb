@@ -1,3 +1,6 @@
+require 'openssl'
+OpenSSL::SSL::VERIFY_PEER = OpenSSL::SSL::VERIFY_NONE
+
 require "google_drive"
 require "csv"
 
@@ -55,7 +58,7 @@ feature_list = []
 (1...input.size).each { |i| rows << CSV::Row.new(header, input[i]) }
 
 rows.each do |row|
-    feature_name = row[0]
+    feature_name = row[0].downcase
     feature_list.push(feature_name)
 end
 
@@ -67,7 +70,7 @@ curls_assoc_arr = {}
       (1..ws.num_cols).each do |col|
         row_arr.push(ws[row, col])
       end
-      curl_feature_name = row_arr[column_map["Feature Name"]]
+      curl_feature_name = row_arr[column_map["Feature Name"]].downcase
     curls_assoc_arr[curl_feature_name] = row_arr
 end
 
@@ -83,6 +86,14 @@ feature_list.each do | this_feature |
         approval       = this_curls_arr[column_map["Approval Needed"]]
         steps          = this_curls_arr[column_map["Steps to Enable"]]
         curl_cmd       = this_curls_arr[column_map["Curl Command"]]
+    else
+        warning_string = "Warning!! No matching enablement line item found for this Feature."
+        header_delim = "#"*warning_string.length
+        puts header_delim
+        puts this_feature
+        puts "Warning!! No matching enablement line item found for this Feature."
+        puts header_delim
+        puts
     end
 
     header_string = "#{feature_number} #{feature_name}"
