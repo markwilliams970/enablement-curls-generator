@@ -65,12 +65,22 @@ end
 puts "Reading curls spreadsheet and building list..."
 curls_assoc_arr = {}
 # Read curls spreadsheet and store each row in hash using feature name as key
-(1..ws.num_rows).each do |row|
+# Start at row 2 to skip header row
+(2..ws.num_rows).each do |row|
     row_arr = []
       (1..ws.num_cols).each do |col|
         row_arr.push(ws[row, col])
       end
-      curl_feature_name = row_arr[column_map["Feature Name"]].downcase
+    curl_feature_name = row_arr[column_map["Feature Name"]].downcase
+
+    # A check for manually selected features to enable (i.e. features not in CSV, but checked in the Google doc)
+    selected_for_enablement = row_arr[column_map["Selected for Enablement"]]
+    if !selected_for_enablement.nil? then
+        if selected_for_enablement.length > 0 then
+            puts "selected_for_enablement: #{selected_for_enablement.length}: #{selected_for_enablement}"
+            feature_list.push(curl_feature_name)
+        end
+    end
     curls_assoc_arr[curl_feature_name] = row_arr
 end
 
@@ -78,6 +88,7 @@ puts "Matching curls on feature names...."
 # loop through feature list and output curl for each feature requested
 feature_list.each do | this_feature |
     this_curls_arr = curls_assoc_arr[this_feature]
+
     if !this_curls_arr.nil? then
         feature_number = this_curls_arr[column_map["Feature Number"]]
         feature_name   = this_curls_arr[column_map["Feature Name"]]
