@@ -78,7 +78,6 @@ curls_assoc_arr = {}
     selected_for_enablement = row_arr[column_map["Selected for Enablement"]]
     if !selected_for_enablement.nil? then
         if selected_for_enablement.length > 0 then
-            puts "selected_for_enablement: #{selected_for_enablement.length}: #{selected_for_enablement}"
             feature_list.push(curl_feature_name)
         end
     end
