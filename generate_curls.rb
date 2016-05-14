@@ -58,7 +58,7 @@ feature_list = []
 (1...input.size).each { |i| rows << CSV::Row.new(header, input[i]) }
 
 rows.each do |row|
-    feature_name = row[0].downcase
+    feature_name = row[0].downcase.rstrip
     feature_list.push(feature_name)
 end
 

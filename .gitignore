@@ -1,4 +1,6 @@
 config.json
 config.json.bak
 featurelist.csv
+*.csv
 my_vars.rb
+.idea
