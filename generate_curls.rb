@@ -17,6 +17,7 @@ $my_delim                           = ","
 # Inputs
 $input_file_arg = ARGV[0]
 $partner_id     = ARGV[1]
+$headers_only   = ARGV[2]
 
 if $input_file_arg == nil || $partner_id == nil then
     puts "Usage: ruby generate_curls.rb featurelist.csv {partnerId}"
@@ -114,24 +115,28 @@ feature_list.each do | this_feature |
         puts header_delim
         puts header_string
         puts header_delim
-        if !pre_reqs.nil? then
-            if pre_reqs.length > 0
-                puts pre_reqs
+
+        # Check mode to see if we're outputting only the headers.
+        if $headers_only.nil? then
+            if !pre_reqs.nil? then
+                if pre_reqs.length > 0
+                    puts pre_reqs
+                end
             end
-        end
-        if !approval.nil? then
-            if approval.length > 0 then
-                puts approval
+            if !approval.nil? then
+                if approval.length > 0 then
+                    puts approval
+                end
             end
-        end
-        if !steps.nil? then
-            if steps.length > 0 then
-                puts steps
+            if !steps.nil? then
+                if steps.length > 0 then
+                    puts steps
+                end
             end
-        end
-        if !curl_cmd.nil? then
-            if curl_cmd.length > 0 then
-                puts curl_cmd.gsub("<PartnerID>", $partner_id)
+            if !curl_cmd.nil? then
+                if curl_cmd.length > 0 then
+                    puts curl_cmd.gsub("<PartnerID>", $partner_id)
+                end
             end
         end
         puts
