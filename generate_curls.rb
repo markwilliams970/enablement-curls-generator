@@ -60,7 +60,9 @@ header = input.first #ignores first line
 
 rows   = []
 feature_list = []
-(1...input.size).each { |i| rows << CSV::Row.new(header, input[i]) }
+# CSV is 0-indexed, so we're starting at first row.
+# Start at row 1. Note - this means, don't add a header row to the input file!!
+(0...input.size).each { |i| rows << CSV::Row.new(header, input[i]) }
 
 rows.each do |row|
     feature_name = row[0].downcase.rstrip
@@ -70,8 +72,8 @@ end
 puts "# Reading curls spreadsheet and building list..."
 curls_assoc_arr = {}
 # Read curls spreadsheet and store each row in hash using feature name as key
-# Start at row 1. Note - this means, don't add a header row!!
-(1..ws.num_rows).each do |row|
+# Start at row 2, need to Skip row one - the spreadsheet header row
+(2..ws.num_rows).each do |row|
     row_arr = []
       (1..ws.num_cols).each do |col|
         row_arr.push(ws[row, col])
