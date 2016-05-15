@@ -4,6 +4,10 @@ OpenSSL::SSL::VERIFY_PEER = OpenSSL::SSL::VERIFY_NONE
 require "google_drive"
 require "csv"
 
+# Mode variables
+$headers_only   = false
+$echo_mode      = false
+
 # Load (and maybe override with) my personal/private variables from a file...
 my_vars= File.dirname(__FILE__) + "/my_vars.rb"
 if FileTest.exist?( my_vars ) then require my_vars end
@@ -17,7 +21,6 @@ $my_delim                           = ","
 # Inputs
 $input_file_arg = ARGV[0]
 $partner_id     = ARGV[1]
-$headers_only   = ARGV[2]
 
 if $input_file_arg == nil || $partner_id == nil then
     puts "Usage: ruby generate_curls.rb featurelist.csv {partnerId}"
@@ -34,7 +37,7 @@ session = GoogleDrive.saved_session("config.json")
 ws = session.spreadsheet_by_key($my_spreadsheet_id).worksheets[0]
 
 # Output worksheet attributes
-puts ws.inspect
+puts "# #{ws.inspect}"
 
 # Column Keys
 column_map = {
@@ -45,10 +48,11 @@ column_map = {
     "Pre-Requisites/Notes"    => 4,
     "Approval Needed"         => 5,
     "Steps to Enable"         => 6,
-    "Curl Command"            => 7
+    "Curl Command"            => 7,
+    "Multi-Step"              => 8
 }
 
-puts "Reading input file of features requested..."
+puts "# Reading input file of features requested..."
 # Read input file
 $input_filename = $input_file_arg
 input  = CSV.read($input_filename, {:col_sep => $my_delim, :encoding => $file_encoding})
@@ -63,7 +67,7 @@ rows.each do |row|
     feature_list.push(feature_name)
 end
 
-puts "Reading curls spreadsheet and building list..."
+puts "# Reading curls spreadsheet and building list..."
 curls_assoc_arr = {}
 # Read curls spreadsheet and store each row in hash using feature name as key
 # Start at row 2 to skip header row
@@ -84,7 +88,7 @@ curls_assoc_arr = {}
     curls_assoc_arr[curl_feature_name] = row_arr
 end
 
-puts "Matching curls on feature names...."
+puts "# Matching curls on feature names...."
 # loop through feature list and output curl for each feature requested
 feature_list.each do | this_feature |
     this_curls_arr = curls_assoc_arr[this_feature]
@@ -97,6 +101,7 @@ feature_list.each do | this_feature |
         approval       = this_curls_arr[column_map["Approval Needed"]]
         steps          = this_curls_arr[column_map["Steps to Enable"]]
         curl_cmd       = this_curls_arr[column_map["Curl Command"]]
+        multi_step     = this_curls_arr[column_map["Multi-Step"]]
     else
         warning_string = "Warning!! No matching enablement line item found for this Feature."
         header_delim = "#"*warning_string.length
@@ -107,7 +112,8 @@ feature_list.each do | this_feature |
         puts
     end
 
-    header_string = "#{feature_number} #{feature_name}"
+    echo_string = "#{feature_number} #{feature_name}"
+    header_string = "# #{echo_string}"
     header_delim = "#"*header_string.length
 
     if !feature_number.nil? then
@@ -116,25 +122,38 @@ feature_list.each do | this_feature |
         puts header_delim
 
         # Check mode to see if we're outputting only the headers.
-        if $headers_only.nil? then
+        if $headers_only == false then
+            if !multi_step.nil? then
+                if multi_step.length > 0 then
+                    puts "# MULTI-STEP ENABLEMENT!!"
+                end
+            end
             if !pre_reqs.nil? then
-                if pre_reqs.length > 0
-                    puts pre_reqs
+                if pre_reqs.length > 0 then
+                    puts "#{pre_reqs}"
                 end
             end
             if !approval.nil? then
                 if approval.length > 0 then
-                    puts approval
+                    puts "#{approval}"
                 end
             end
             if !steps.nil? then
                 if steps.length > 0 then
-                    puts steps
+                    puts "#{steps}"
+                end
+            end
+            if !multi_step.nil? && !curl_cmd.nil? && $echo_mode == true then
+                if multi_step.length == 0 && curl_cmd.length > 0 then
+                    puts "echo \"#{echo_string}:\""
                 end
             end
             if !curl_cmd.nil? then
                 if curl_cmd.length > 0 then
                     puts curl_cmd.gsub("<PartnerID>", $partner_id)
+                    if multi_step.nil? then
+                        puts "sleep 10"
+                    end
                 end
             end
         end
@@ -143,4 +162,4 @@ feature_list.each do | this_feature |
 end
 
 # Reloads the worksheet to get changes by other clients.
-ws.reload
+# ws.reload
