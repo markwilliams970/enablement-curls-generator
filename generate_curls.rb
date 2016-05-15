@@ -6,7 +6,7 @@ require "csv"
 
 # Mode variables
 $headers_only   = false
-$script_mode    = true
+$script_mode    = false
 
 # Load (and maybe override with) my personal/private variables from a file...
 my_vars= File.dirname(__FILE__) + "/my_vars.rb"
