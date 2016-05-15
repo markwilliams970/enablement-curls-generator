@@ -6,7 +6,7 @@ require "csv"
 
 # Mode variables
 $headers_only   = false
-$echo_mode      = false
+$script_mode    = false
 
 # Load (and maybe override with) my personal/private variables from a file...
 my_vars= File.dirname(__FILE__) + "/my_vars.rb"
@@ -143,7 +143,7 @@ feature_list.each do | this_feature |
                     puts "#{steps}"
                 end
             end
-            if !multi_step.nil? && !curl_cmd.nil? && $echo_mode == true then
+            if !multi_step.nil? && !curl_cmd.nil? && $script_mode == true then
                 if multi_step.length == 0 && curl_cmd.length > 0 then
                     puts "echo \"#{echo_string}:\""
                 end
@@ -151,7 +151,7 @@ feature_list.each do | this_feature |
             if !curl_cmd.nil? then
                 if curl_cmd.length > 0 then
                     puts curl_cmd.gsub("<PartnerID>", $partner_id)
-                    if multi_step.nil? then
+                    if multi_step.length == 0 && $script_mode == true then
                         puts "sleep 10"
                     end
                 end
