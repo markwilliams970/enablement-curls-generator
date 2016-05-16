@@ -163,7 +163,7 @@ feature_list.each do | this_feature |
 
                 # Stdout
                 puts "echo \"#{echo_header}\""
-                puts "echo \"#{echo_string}:\""
+                puts "echo \"# #{echo_string}:\""
                 puts "echo \"#{echo_header}\""
             end
 
@@ -176,10 +176,10 @@ feature_list.each do | this_feature |
                     if $script_mode == true then
                         if multi_step.length == 0 then
                             # Logged output
-                            puts "echo \"Enabling: #{echo_string}\" >> enablement_#{$partner_id}.log"
+                            puts "echo \"# Enabling: #{echo_string}\" >> enablement_#{$partner_id}.log"
 
                             # Stdout
-                            puts "echo \"Enabling: #{echo_string}\""
+                            puts "echo \"# Enabling: #{echo_string}\""
 
                             # Logged output
                             puts "#{execute_command} >> enablement_#{$partner_id}.log"
@@ -194,7 +194,7 @@ feature_list.each do | this_feature |
                             # Stdout - add some whitespace between properties/features
                             puts "echo"
                         else
-                            puts "echo \"MULTI-STEP OR MANUAL ENABLEMENT - please enable manually!\" >> enablement_#{$partner_id}.log"
+                            puts "echo \"# MULTI-STEP OR MANUAL ENABLEMENT - please enable manually!\" >> enablement_#{$partner_id}.log"
                             puts "# Steps:"
                             puts "#{execute_command}"
                         end
