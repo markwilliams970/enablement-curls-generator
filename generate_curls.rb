@@ -36,6 +36,12 @@ session = GoogleDrive.saved_session("config.json")
 # Or https://docs.google.com/a/someone.com/spreadsheets/d/pz7XtlQC-PYx-jrVMJErTcg/edit?usp=drive_web
 ws = session.spreadsheet_by_key($my_spreadsheet_id).worksheets[0]
 
+# Put in call to bash if script mode is true
+if $script_mode == true then
+    puts "#!/bin/bash"
+    puts
+end
+
 # Output worksheet attributes
 puts "# #{ws.inspect}"
 
@@ -127,7 +133,7 @@ feature_list.each do | this_feature |
         if $headers_only == false then
             if !multi_step.nil? then
                 if multi_step.length > 0 then
-                    puts "# MULTI-STEP ENABLEMENT!!"
+                    puts "# MULTI-STEP OR MANUAL ENABLEMENT!!"
                 end
             end
             if !pre_reqs.nil? then
@@ -145,19 +151,55 @@ feature_list.each do | this_feature |
                     puts "#{steps}"
                 end
             end
-            if !multi_step.nil? && !curl_cmd.nil? && $script_mode == true then
-                if multi_step.length == 0 && curl_cmd.length > 0 then
-                    echo_header = "#"*(echo_string.length+1)
-                    puts "echo \"#{echo_header}\""
-                    puts "echo \"#{echo_string}:\""
-                    puts "echo \"#{echo_header}\""
-                end
+
+            # Script mode header
+            if $script_mode == true then
+                echo_header = "#"*(echo_string.length+1)
+                
+                # Logged output
+                puts "echo \"#{echo_header}\" >> enablement_#{$partner_id}.log"
+                puts "echo \"#{echo_string}:\" >> enablement_#{$partner_id}.log"
+                puts "echo \"#{echo_header}\" >> enablement_#{$partner_id}.log"
+
+                # Stdout
+                puts "echo \"#{echo_header}\""
+                puts "echo \"#{echo_string}:\""
+                puts "echo \"#{echo_header}\""
             end
+
             if !curl_cmd.nil? then
-                if curl_cmd.length > 0 then
-                    puts curl_cmd.gsub("<PartnerID>", $partner_id)
-                    if multi_step.length == 0 && $script_mode == true then
-                        puts "sleep 10"
+                if curl_cmd.length > 0 then                    
+                    # Curl Command
+                    execute_command = curl_cmd.gsub("<PartnerID>", $partner_id)
+
+                    # Script mode Curl Command
+                    if $script_mode == true then
+                        if multi_step.length == 0 then
+                            # Logged output
+                            puts "echo \"Enabling: #{echo_string}\" >> enablement_#{$partner_id}.log"
+
+                            # Stdout
+                            puts "echo \"Enabling: #{echo_string}\""
+
+                            # Logged output
+                            puts "#{execute_command} >> enablement_#{$partner_id}.log"
+                            
+                            # Stdout
+                            puts "echo \"Pausing 10s...\""
+                            puts "sleep 10"
+
+                            # Logged output - add some whitespace between properties/features
+                            puts "echo >> enablement_#{$partner_id}.log"
+
+                            # Stdout - add some whitespace between properties/features
+                            puts "echo"
+                        else
+                            puts "echo \"MULTI-STEP OR MANUAL ENABLEMENT - please enable manually!\" >> enablement_#{$partner_id}.log"
+                            puts "# Steps:"
+                            puts "#{execute_command}"
+                        end
+                    elsif $script_mode == false then
+                        puts "#{execute_command}"
                     end
                 end
             end
