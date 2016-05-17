@@ -31,9 +31,7 @@ end
 # first time and save it to config.json file for later usages.
 session = GoogleDrive.saved_session("config.json")
 
-# First worksheet of
-# https://docs.google.com/spreadsheet/ccc?key=pz7XtlQC-PYx-jrVMJErTcg
-# Or https://docs.google.com/a/someone.com/spreadsheets/d/pz7XtlQC-PYx-jrVMJErTcg/edit?usp=drive_web
+# Grab first worksheet in spreadsheet
 ws = session.spreadsheet_by_key($my_spreadsheet_id).worksheets[0]
 
 # Put in call to bash if script mode is true
