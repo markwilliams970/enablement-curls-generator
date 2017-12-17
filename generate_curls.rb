@@ -15,7 +15,7 @@ if FileTest.exist?( my_vars ) then require my_vars end
 # Encoding
 $file_encoding                      = "UTF-8"
 
-# Field delimiter for permissions file
+# Field delimiter for input file
 $my_delim                           = ","
 
 # Inputs
